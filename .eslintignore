@@ -1,0 +1,6 @@
+/.nuxt/**
+/assets/**
+/build/**
+/node_modules/**
+/static/**
+/.vscode/**
