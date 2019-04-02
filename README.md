@@ -11,7 +11,7 @@
         * 데이터베이스의 테이블에는 User 와 Item 이 주어졌습니다.
         * User 는 Item 을 여러개 가질 수 있습니다. 이 관계를 작성해주세요.
     * REST API
-        * Item 에 대해서 create, remove, update, delete api 를 작성해주세요.
+        * Item 에 대해서 create, read, update, delete api 를 작성해주세요.
 2. 프론트
     * Item 을 보여주는 새로운 page 를 생성합니다.
     * 좌측에는 User 의 리스트가 우측에는 해당 User 의 Item 리스트가 보여집니다.
@@ -28,8 +28,9 @@
     
    
 ## 데이터베이스 초기화
-    create database creatrip-assignement;
-    grant all privileges on creatrip-assignement.* to creatrip@localhost identified by '7777';
+    create database creatrip;
+    create user creatrip@localhost identified by 'creatrip';
+    grant all privileges on creatrip.* to creatrip@localhost with grant option;
 
 ## 빌드
     # install dependencies
