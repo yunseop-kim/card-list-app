@@ -77,9 +77,9 @@ Please submit your github repository address to recruit@creatrip.com after you s
    
   
 ## Database Reset
-    create database creatrip;
-    create user creatrip@localhost identified by 'creatrip';
-    grant all privileges on creatrip.* to creatrip@localhost with grant option;
+   create database creatrip_assignement;
+   create user creatrip@localhost identified by ‘7777’;
+   grant all privileges on creatrip.* to creatrip@localhost with grant option;
 
 ## Build
     # install dependencies
