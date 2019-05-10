@@ -29,9 +29,9 @@
     
    
 ## 데이터베이스 초기화
-    create database creatrip;
-    create user creatrip@localhost identified by 'creatrip';
-    grant all privileges on creatrip.* to creatrip@localhost with grant option;
+   create database creatrip_assignement;
+   create user creatrip@localhost identified by ‘7777’;
+   grant all privileges on creatrip.* to creatrip@localhost with grant option;
 
 ## 빌드
     # install dependencies
