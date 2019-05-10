@@ -1,4 +1,4 @@
-# Creatrip Assignement (KR)
+# Creatrip Assignment (KR)
 
 크리에이트립에 지원해주셔서 감사합니다.
 
@@ -31,7 +31,7 @@
 ## 데이터베이스 초기화
     create database creatrip_assignement;
     create user creatrip@localhost identified by ‘7777’;
-    grant all privileges on creatrip.* to creatrip@localhost with grant option;
+    grant all privileges on creatrip_assignement.* to creatrip@localhost with grant option;
 
 ## 빌드
     # install dependencies
@@ -79,7 +79,7 @@ Please submit your github repository address to recruit@creatrip.com after you s
 ## Database Reset
     create database creatrip_assignement;
     create user creatrip@localhost identified by ‘7777’;
-    grant all privileges on creatrip.* to creatrip@localhost with grant option;
+    grant all privileges on creatrip_assignement.* to creatrip@localhost with grant option;
 
 ## Build
     # install dependencies
