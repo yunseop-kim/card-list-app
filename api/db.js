@@ -8,6 +8,8 @@ const user = User(sequelize, Sequelize);
 const item = Item(sequelize, Sequelize);
 
 async function initDB(isDrop) {
+  user.hasMany(item);
+  item.belongsTo(user)
   return sequelize.sync({ force: isDrop });
 }
 
