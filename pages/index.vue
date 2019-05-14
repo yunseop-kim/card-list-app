@@ -1,17 +1,21 @@
 <template>
   <div class="container">
     <ul>
-      <li v-for="(user, index) in users" :key="index">{{user.name}}</li>
+      <li v-for="(user, index) in users" :key="index" @click="getItems(user.id)">{{user.name}}</li>
+    </ul>
+    <ul>
+      <li v-for="(item, index) in items" :key="index">{{item.name}}</li>
     </ul>
   </div>
 </template>
 
 <script>
-import { getUsers } from "../plugins/api.js";
+import { getUsers, getItems } from "../plugins/api.js";
 export default {
   data() {
     return {
-      users: []
+      users: [],
+      items: []
     };
   },
   async mounted() {
@@ -20,6 +24,9 @@ export default {
   methods: {
     async fetch() {
       this.users = await getUsers();
+    },
+    async getItems(userId) {
+      this.items = await getItems(userId);
     }
   }
 };
