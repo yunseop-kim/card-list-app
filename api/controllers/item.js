@@ -16,7 +16,11 @@ async function addItem(req, res) {
       name,
       image_path
     } = req.body;
-    const user = await db.user.findOne(req.body.userId)
+    const user = await db.user.findOne({
+      where: {
+        id: req.params.userId
+      }
+    })
     const item = await db.item.create({
       name,
       image_path
