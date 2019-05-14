@@ -25,7 +25,7 @@ export const updateItem = (userId, item) => {
         name,
         image_path
     } = item
-    return instance.post(`/user/${userId}/item/${id}`, {
+    return instance.put(`/user/${userId}/item/${id}`, {
         name,
         image_path
     }).then(value => value.data)

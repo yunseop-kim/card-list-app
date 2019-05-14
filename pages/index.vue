@@ -38,22 +38,43 @@
             </v-card-title>
 
             <v-card-actions>
-              <v-btn flat color="orange">수정</v-btn>
-              <v-btn flat color="orange" @click="removeItem(currentUser, item.id)">삭제</v-btn>
+              <v-btn flat color="orange" @click="openModal(item)">수정</v-btn>
+              <v-btn flat color="orange" @click="removeItem(item.id)">삭제</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
       </v-layout>
     </v-container>
+    <v-dialog v-model="dialog" persistent max-width="290">
+      <template v-slot:activator="{ on }">
+        <v-btn color="primary" dark v-on="on">Open Dialog</v-btn>
+      </template>
+      <v-card>
+        <v-card-title class="headline">아이템 수정</v-card-title>
+        <v-text-field label="이름" v-model="selectedItem.name"></v-text-field>
+        <v-text-field label="이미지 경로" v-model="selectedItem.image_path"></v-text-field>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" flat @click="closeModal">취소</v-btn>
+          <v-btn color="green darken-1" flat @click="updateItem">수정</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
-import { getUsers, getItems, removeItem } from "../plugins/api.js";
+import { getUsers, getItems, removeItem, updateItem } from "../plugins/api.js";
 export default {
   data() {
     return {
       currentUser: null,
+      selectedItem: {
+        id: null,
+        name: null,
+        image_path: null
+      },
+      dialog: false,
       users: [],
       items: []
     };
@@ -69,9 +90,21 @@ export default {
       this.currentUser = userId;
       this.items = await getItems(userId);
     },
-    async removeItem(userId, id){
-      await removeItem(userId, id)
-      this.items = await getItems(userId);
+    async removeItem(id) {
+      await removeItem(this.currentUser, id);
+      this.items = await getItems(this.currentUser);
+    },
+    async updateItem() {
+      await updateItem(this.currentUser, this.selectedItem);
+      this.items = await getItems(this.currentUser);
+      this.closeModal()
+    },
+    openModal(item) {
+      this.selectedItem = item
+      this.dialog = true;
+    },
+    closeModal() {
+      this.dialog = false;
     }
   }
 };
