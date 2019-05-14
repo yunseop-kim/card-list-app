@@ -10,10 +10,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 applyRoutes(app);
 
-db.initDB()
-  // .then(() => {
-  //   return db.createDummy();
-  // })
+db.initDB(true)
+  .then(() => {
+    return db.createDummy();
+  })
   .then(() => {
     app.listen(config.port, config.host, () => {
       console.log(`Listening on ${config.host}:${config.port}`);
