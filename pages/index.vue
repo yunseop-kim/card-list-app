@@ -15,19 +15,14 @@
           </v-list>
         </v-flex>
         <v-flex>
-          <!-- <v-list>
-            <v-list-tile v-for="(item, index) in items" :key="index">
-              <v-list-tile-content>
-                <v-list-tile-title>{{item.name}}</v-list-tile-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <div>
-                  <v-btn color="info">수정</v-btn>
-                  <v-btn color="info">삭제</v-btn>
-                </div>
-              </v-list-tile-action>
-            </v-list-tile>
-          </v-list>-->
+          <v-btn @click="openModal">생성</v-btn>
+          <v-select
+            v-if="items.length > 0"
+            v-model="order"
+            @change="sortList"
+            :items="['선택하세요', '내림차순', '오름차순']"
+            label="정렬"
+          ></v-select>
           <v-card v-for="(item, index) in items" :key="index">
             <v-img :src="item.image_path" aspect-ratio="2.75"></v-img>
 
@@ -46,13 +41,9 @@
       </v-layout>
     </v-container>
     <v-dialog v-model="dialog" persistent max-width="290">
-      <template v-slot:activator="{ on }">
-        <v-btn color="primary" dark v-on="on">Open Dialog</v-btn>
-      </template>
       <v-card>
         <v-card-title class="headline">아이템 수정</v-card-title>
         <v-text-field label="이름" v-model="selectedItem.name"></v-text-field>
-        <v-text-field label="이미지 경로" v-model="selectedItem.image_path"></v-text-field>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" flat @click="closeModal">취소</v-btn>
@@ -64,7 +55,13 @@
 </template>
 
 <script>
-import { getUsers, getItems, removeItem, updateItem } from "../plugins/api.js";
+import {
+  addItem,
+  getUsers,
+  getItems,
+  removeItem,
+  updateItem
+} from "../plugins/api.js";
 export default {
   data() {
     return {
@@ -76,7 +73,8 @@ export default {
       },
       dialog: false,
       users: [],
-      items: []
+      items: [],
+      order: null
     };
   },
   async mounted() {
@@ -85,6 +83,10 @@ export default {
   methods: {
     async fetch() {
       this.users = await getUsers();
+    },
+    async addItem(userId) {
+      this.currentUser = userId;
+      this.items = await addItem(this.currentUser, this.selectedItem);
     },
     async getItems(userId) {
       this.currentUser = userId;
@@ -97,14 +99,37 @@ export default {
     async updateItem() {
       await updateItem(this.currentUser, this.selectedItem);
       this.items = await getItems(this.currentUser);
-      this.closeModal()
+      this.closeModal();
     },
     openModal(item) {
-      this.selectedItem = item
+      this.selectedItem = item;
       this.dialog = true;
     },
     closeModal() {
       this.dialog = false;
+      this.selectedItem = {
+        id: null,
+        name: null,
+        image_path: null
+      };
+    },
+    sortList() {
+      switch (this.order) {
+        case '오름차순':
+          this.items = this.items.sort((a, b) =>
+            a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+          );
+          break;
+
+        case '내림차순':
+          this.items = this.items.sort((a, b) =>
+            a.name < b.name ? 1 : b.name < a.name ? -1 : 0
+          );
+          break;
+
+        default:
+          break;
+      }
     }
   }
 };
