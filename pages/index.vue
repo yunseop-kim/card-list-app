@@ -1,13 +1,27 @@
 <template>
   <div class="container">
-    <h1 class="title">
-      Creatrip Assignement
-    </h1>
+    <ul>
+      <li v-for="(user, index) in users" :key="index">{{user.name}}</li>
+    </ul>
   </div>
 </template>
 
 <script>
+import { getUsers } from "../plugins/api.js";
 export default {
+  data() {
+    return {
+      users: []
+    };
+  },
+  async mounted() {
+    this.fetch();
+  },
+  methods: {
+    async fetch() {
+      this.users = await getUsers();
+    }
+  }
 };
 </script>
 
@@ -22,7 +36,7 @@ export default {
 }
 .title {
   display: block;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: "Source Sans Pro", sans-serif;
   font-size: 42px;
 }
 </style>

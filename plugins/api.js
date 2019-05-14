@@ -4,7 +4,7 @@ const instance = axios.create({
     baseURL: 'http://localhost:9999/'
 });
 
-export const getUsers = () => instance.get('/user')
+export const getUsers = () => instance.get('/user').then(value => value.data)
 
 export const addItem = (userId, item) => {
     const {
@@ -14,10 +14,10 @@ export const addItem = (userId, item) => {
     return instance.post(`/user/${userId}/item`, {
         name,
         image_path
-    })
+    }).then(value => value.data)
 }
 
-export const getItems = (userId) => instance.get(`/user/${userId}/items`)
+export const getItems = (userId) => instance.get(`/user/${userId}/items`).then(value => value.data)
 
 export const updateItem = (userId, item) => {
     const {
@@ -28,7 +28,7 @@ export const updateItem = (userId, item) => {
     return instance.post(`/user/${userId}/item/${id}`, {
         name,
         image_path
-    })
+    }).then(value => value.data)
 }
 
-export const removeItem = (userId, id) => instance.delete(`/user/${userId}/item/${id}`)
+export const removeItem = (userId, id) => instance.delete(`/user/${userId}/item/${id}`).then(value => value.data)
