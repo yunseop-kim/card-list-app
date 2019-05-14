@@ -1,7 +1,11 @@
 import db from '../db';
 
 async function getItems(req, res) {
-  const item = await db.item.findAll();
+  const item = await db.item.findAll({
+    where: {
+      user_id: req.params.userId
+    }
+  });
 
   return res.status(200).json(item);
 }
