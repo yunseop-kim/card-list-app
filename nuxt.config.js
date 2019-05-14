@@ -4,25 +4,39 @@ module.exports = {
   mode: 'universal',
   head: {
     title: pkg.name,
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: pkg.description }
+    meta: [{
+        charset: 'utf-8'
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1'
+      },
+      {
+        hid: 'description',
+        name: 'description',
+        content: pkg.description
+      }
     ],
-    link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    link: [{
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico'
+    }]
   },
 
-  loading: { color: '#fff' },
-  css: [
-  ],
-  plugins: [
-  ],
+  loading: {
+    color: '#fff'
+  },
+  css: [],
+  plugins: [],
   modules: [
+    '@nuxtjs/vuetify'
   ],
+  vuetify: {
+    // Vuetify options
+    //  theme: { }
+  },
   build: {
-    extend(config, ctx) {
-    }
+    extend(config, ctx) {}
   }
 }

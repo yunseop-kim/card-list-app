@@ -1,12 +1,54 @@
 <template>
-  <div class="container">
-    <ul>
-      <li v-for="(user, index) in users" :key="index" @click="getItems(user.id)">{{user.name}}</li>
-    </ul>
-    <ul>
-      <li v-for="(item, index) in items" :key="index">{{item.name}}</li>
-    </ul>
-  </div>
+  <v-app id="inspire">
+    <v-container grid-list-md text-xs-center>
+      <v-layout row wrap fill-height>
+        <v-flex xs6>
+          <v-list>
+            <v-list-tile v-for="(user, index) in users" :key="index">
+              <v-list-tile-content>
+                <v-list-tile-title>{{user.name}}</v-list-tile-title>
+              </v-list-tile-content>
+              <v-list-tile-action>
+                <v-btn color="info" @click="getItems(user.id)">보기</v-btn>
+              </v-list-tile-action>
+            </v-list-tile>
+          </v-list>
+        </v-flex>
+        <v-flex>
+          <!-- <v-list>
+            <v-list-tile v-for="(item, index) in items" :key="index">
+              <v-list-tile-content>
+                <v-list-tile-title>{{item.name}}</v-list-tile-title>
+              </v-list-tile-content>
+              <v-list-tile-action>
+                <div>
+                  <v-btn color="info">수정</v-btn>
+                  <v-btn color="info">삭제</v-btn>
+                </div>
+              </v-list-tile-action>
+            </v-list-tile>
+          </v-list> -->
+          <v-card v-for="(item, index) in items" :key="index">
+            <v-img
+              :src="item.image_path"
+              aspect-ratio="2.75"
+            ></v-img>
+    
+            <v-card-title primary-title>
+              <div>
+                <h3 class="headline mb-0">{{item.name}}</h3>
+              </div>
+            </v-card-title>
+    
+            <v-card-actions>
+              <v-btn flat color="orange">수정</v-btn>
+              <v-btn flat color="orange">삭제</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </v-app>
 </template>
 
 <script>
