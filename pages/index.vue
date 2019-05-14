@@ -23,27 +23,29 @@
             :items="['선택하세요', '내림차순', '오름차순']"
             label="정렬"
           ></v-select>
-          <v-card v-for="(item, index) in items" :key="index">
-            <v-img :src="item.image_path" aspect-ratio="2.75"></v-img>
+          <div style="height:80vh; overflow:scroll;">
+            <v-card v-for="(item, index) in items" :key="index">
+              <v-img :src="item.image_path" aspect-ratio="2.75"></v-img>
 
-            <v-card-title primary-title>
-              <div>
-                <h3 class="headline mb-0">{{item.name}}</h3>
-              </div>
-            </v-card-title>
+              <v-card-title primary-title>
+                <div>
+                  <h3 class="headline mb-0">{{item.name}}</h3>
+                </div>
+              </v-card-title>
 
-            <v-card-actions>
-              <v-btn flat color="orange" @click="openModal(item)">수정</v-btn>
-              <v-btn flat color="orange" @click="removeItem(item.id)">삭제</v-btn>
-            </v-card-actions>
-          </v-card>
+              <v-card-actions>
+                <v-btn flat color="orange" @click="openModal(item)">수정</v-btn>
+                <v-btn flat color="orange" @click="removeItem(item.id)">삭제</v-btn>
+              </v-card-actions>
+            </v-card>
+          </div>
         </v-flex>
       </v-layout>
     </v-container>
     <v-dialog v-model="dialog" persistent max-width="290">
       <v-card>
         <v-card-title class="headline">아이템 수정</v-card-title>
-        <v-text-field label="이름" v-model="selectedItem.name"></v-text-field>
+        <v-text-field label="이름" @input="editItem" :value="selectedItem.name"></v-text-field>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" flat @click="closeModal">취소</v-btn>
@@ -66,11 +68,11 @@ export default {
   data() {
     return {
       currentUser: null,
-      selectedItem: {
-        id: null,
-        name: null,
-        image_path: null
-      },
+      // selectedItem: {
+      //   id: null,
+      //   name: null,
+      //   image_path: null
+      // },
       dialog: false,
       users: [],
       items: [],
@@ -79,6 +81,11 @@ export default {
   },
   async mounted() {
     this.fetch();
+  },
+  computed: {
+    selectedItem() {
+      return this.$store.state.selectedItem;
+    }
   },
   methods: {
     async fetch() {
@@ -101,27 +108,31 @@ export default {
       this.items = await getItems(this.currentUser);
       this.closeModal();
     },
+    editItem(name) {
+      const { id, image_path } = this.selectedItem;
+      this.$store.commit("setItem", {
+        id,
+        name,
+        image_path
+      });
+    },
     openModal(item) {
-      this.selectedItem = item;
+      this.$store.commit("setItem", item);
       this.dialog = true;
     },
     closeModal() {
       this.dialog = false;
-      this.selectedItem = {
-        id: null,
-        name: null,
-        image_path: null
-      };
+      this.$store.commit("resetItem");
     },
     sortList() {
       switch (this.order) {
-        case '오름차순':
+        case "오름차순":
           this.items = this.items.sort((a, b) =>
             a.name > b.name ? 1 : b.name > a.name ? -1 : 0
           );
           break;
 
-        case '내림차순':
+        case "내림차순":
           this.items = this.items.sort((a, b) =>
             a.name < b.name ? 1 : b.name < a.name ? -1 : 0
           );
