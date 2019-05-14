@@ -60,21 +60,27 @@ async function updateItem(req, res) {
 }
 
 async function removeItem(req, res) {
-  const result = await db.item.destroy({
-    where: {
-      id: req.params.id,
-      user_id: req.params.userId
-    }
-  });
-  if (result) {
-    return res.status(200).json({
-      result: "success",
-      message: "성공적으로 삭제했습니다."
+  try {
+    const result = await db.item.destroy({
+      where: {
+        id: req.params.id,
+        user_id: req.params.userId
+      }
     });
-  } else {
+    if (result) {
+      return res.status(200).json({
+        result: "success",
+        message: "성공적으로 삭제했습니다."
+      });
+    } else {
+      return res.status(400).json({
+        result: "fail",
+        message: "항목을 찾을 수 없습니다."
+      });
+    }
+  } catch (error) {
     return res.status(400).json({
-      result: "fail",
-      message: "항목을 찾을 수 없습니다."
+      error: error.stack
     });
   }
 }
