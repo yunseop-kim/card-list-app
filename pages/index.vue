@@ -2,27 +2,32 @@
   <v-app id="inspire">
     <v-container grid-list-md text-xs-center>
       <v-layout row wrap fill-height>
-        <v-flex xs6>
-          <v-list>
-            <v-list-tile v-for="(user, index) in users" :key="index">
-              <v-list-tile-content>
-                <v-list-tile-title>{{user.name}}</v-list-tile-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <v-btn color="info" @click="getItems(user.id)">보기</v-btn>
-              </v-list-tile-action>
-            </v-list-tile>
-          </v-list>
-        </v-flex>
-        <v-flex>
-          <v-btn @click="openModal">생성</v-btn>
+        <v-flex xs12>
+          <div>선택된 유저: {{currentUser.name || '없음'}}</div>
+          <v-btn v-if="currentUser.id" @click="openModal(null, 'add')">생성</v-btn>
           <v-select
             v-if="items.length > 0"
             v-model="order"
             @change="sortList"
             :items="['선택하세요', '내림차순', '오름차순']"
             label="정렬"
-          ></v-select>
+          />
+        </v-flex>
+        <v-flex xs6>
+          <div style="height:80vh; overflow:scroll;">
+            <v-list>
+              <v-list-tile v-for="(user, index) in users" :key="index">
+                <v-list-tile-content>
+                  <v-list-tile-title>{{user.name}}</v-list-tile-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-btn color="info" @click="getItems(user)">보기</v-btn>
+                </v-list-tile-action>
+              </v-list-tile>
+            </v-list>
+          </div>
+        </v-flex>
+        <v-flex>
           <div style="height:80vh; overflow:scroll;">
             <v-card v-for="(item, index) in items" :key="index">
               <v-img :src="item.image_path" aspect-ratio="2.75"></v-img>
@@ -35,7 +40,7 @@
 
               <v-card-actions>
                 <v-btn flat color="orange" @click="openModal(item)">수정</v-btn>
-                <v-btn flat color="orange" @click="removeItem(item.id)">삭제</v-btn>
+                <v-btn flat color="orange" @click="removeItem(item)">삭제</v-btn>
               </v-card-actions>
             </v-card>
           </div>
@@ -44,12 +49,19 @@
     </v-container>
     <v-dialog v-model="dialog" persistent max-width="290">
       <v-card>
-        <v-card-title class="headline">아이템 수정</v-card-title>
-        <v-text-field label="이름" @input="editItem" :value="selectedItem.name"></v-text-field>
+        <v-card-title class="headline">아이템 {{isAddMode ? '생성': '수정'}}</v-card-title>
+        <v-text-field label="이름" v-model="itemInput.name" :value="itemInput.name"></v-text-field>
+        <v-text-field
+          v-if="isAddMode"
+          label="경로"
+          v-model="itemInput.image_path"
+          :value="itemInput.image_path"
+        ></v-text-field>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" flat @click="closeModal">취소</v-btn>
-          <v-btn color="green darken-1" flat @click="updateItem">수정</v-btn>
+          <v-btn v-if="isAddMode" color="green darken-1" flat @click="addItem">생성</v-btn>
+          <v-btn v-if="isEditMode" color="green darken-1" flat @click="updateItem">수정</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -67,16 +79,20 @@ import {
 export default {
   data() {
     return {
-      currentUser: null,
-      // selectedItem: {
-      //   id: null,
-      //   name: null,
-      //   image_path: null
-      // },
+      currentUser: {
+        id: null,
+        name: null
+      },
       dialog: false,
+      dialogMode: "",
       users: [],
       items: [],
-      order: null
+      order: null,
+      itemInput: {
+        id: null,
+        name: null,
+        image_path: null
+      }
     };
   },
   async mounted() {
@@ -85,39 +101,50 @@ export default {
   computed: {
     selectedItem() {
       return this.$store.state.selectedItem;
+    },
+    isAddMode() {
+      return this.dialogMode == "add";
+    },
+    isEditMode() {
+      return this.dialogMode == "edit";
     }
   },
   methods: {
     async fetch() {
       this.users = await getUsers();
     },
-    async addItem(userId) {
-      this.currentUser = userId;
-      this.items = await addItem(this.currentUser, this.selectedItem);
-    },
-    async getItems(userId) {
-      this.currentUser = userId;
-      this.items = await getItems(userId);
-    },
-    async removeItem(id) {
-      await removeItem(this.currentUser, id);
-      this.items = await getItems(this.currentUser);
-    },
-    async updateItem() {
-      await updateItem(this.currentUser, this.selectedItem);
-      this.items = await getItems(this.currentUser);
+    async addItem() {
+      this.items = await addItem(this.currentUser.id, this.itemInput);
+      await this.getItems(this.currentUser);
       this.closeModal();
     },
-    editItem(name) {
-      const { id, image_path } = this.selectedItem;
-      this.$store.commit("setItem", {
-        id,
-        name,
-        image_path
-      });
+    async getItems(user) {
+      this.currentUser = user;
+      this.items = await getItems(this.currentUser.id);
     },
-    openModal(item) {
-      this.$store.commit("setItem", item);
+    async removeItem(item) {
+      console.log(item);
+      await removeItem(this.currentUser.id, item.id);
+      await this.getItems(this.currentUser);
+    },
+    async updateItem() {
+      await updateItem(this.currentUser.id, this.itemInput);
+      await this.getItems(this.currentUser);
+      this.closeModal();
+    },
+    openModal(item, mode = "edit") {
+      switch (mode) {
+        case "add":
+          this.$store.commit("resetItem", item);
+          break;
+        case "edit":
+        default:
+          this.$store.commit("setItem", item);
+          break;
+      }
+      const { id, name, image_path } = this.selectedItem;
+      this.itemInput = { id, name, image_path };
+      this.dialogMode = mode;
       this.dialog = true;
     },
     closeModal() {
