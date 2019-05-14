@@ -27,22 +27,19 @@
                 </div>
               </v-list-tile-action>
             </v-list-tile>
-          </v-list> -->
+          </v-list>-->
           <v-card v-for="(item, index) in items" :key="index">
-            <v-img
-              :src="item.image_path"
-              aspect-ratio="2.75"
-            ></v-img>
-    
+            <v-img :src="item.image_path" aspect-ratio="2.75"></v-img>
+
             <v-card-title primary-title>
               <div>
                 <h3 class="headline mb-0">{{item.name}}</h3>
               </div>
             </v-card-title>
-    
+
             <v-card-actions>
               <v-btn flat color="orange">수정</v-btn>
-              <v-btn flat color="orange">삭제</v-btn>
+              <v-btn flat color="orange" @click="removeItem(currentUser, item.id)">삭제</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -52,10 +49,11 @@
 </template>
 
 <script>
-import { getUsers, getItems } from "../plugins/api.js";
+import { getUsers, getItems, removeItem } from "../plugins/api.js";
 export default {
   data() {
     return {
+      currentUser: null,
       users: [],
       items: []
     };
@@ -68,6 +66,11 @@ export default {
       this.users = await getUsers();
     },
     async getItems(userId) {
+      this.currentUser = userId;
+      this.items = await getItems(userId);
+    },
+    async removeItem(userId, id){
+      await removeItem(userId, id)
       this.items = await getItems(userId);
     }
   }
