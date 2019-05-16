@@ -12,14 +12,15 @@
               data-toggle="dropdown"
               aria-haspopup="true"
               aria-expanded="false"
-            >선택하세요</button>
+            >{{(order && order.value) ? order.key : '선택하세요'}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
               <button
                 class="dropdown-item"
                 href="#"
-                v-for="(item, index) in ['내림차순', '오름차순']"
+                v-for="(item, index) in ordering"
                 :key="index"
-              >{{item}}</button>
+                @click="sortList(item)"
+              >{{item.key}}</button>
             </div>
           </div>
         </div>
@@ -36,7 +37,11 @@
             >
               <span>{{user.name}}</span>
               <div style="display: flex; justify-content: flex-end">
-                <button class="btn btn-success" @click="openModal(null, 'add')" data-toggle="modal">생성</button>
+                <button
+                  class="btn btn-success"
+                  @click="openModal(null, 'add')"
+                  data-toggle="modal"
+                >생성</button>
               </div>
             </li>
           </ul>
@@ -97,7 +102,8 @@ import Card from "../components/Card";
 
 export default {
   components: {
-    Modal, Card
+    Modal,
+    Card
   },
   data() {
     return {
@@ -109,6 +115,11 @@ export default {
       dialogMode: "",
       users: [],
       items: [],
+      ordering: [
+        { key: "선택안함", value: null },
+        { key: "내림차순", value: "DESC" },
+        { key: "오름차순", value: "ASC" }
+      ],
       order: null,
       itemInput: {
         id: null,
@@ -142,7 +153,8 @@ export default {
     },
     async getItems(user) {
       this.currentUser = user;
-      this.items = await getItems(this.currentUser.id);
+      const order = (this.order && this.order.value)
+      this.items = await getItems(this.currentUser.id, order);
     },
     async removeItem(item) {
       console.log(item);
@@ -173,23 +185,9 @@ export default {
       this.dialog = false;
       this.$store.commit("resetItem");
     },
-    sortList() {
-      switch (this.order) {
-        case "오름차순":
-          this.items = this.items.sort((a, b) =>
-            a.name > b.name ? 1 : b.name > a.name ? -1 : 0
-          );
-          break;
-
-        case "내림차순":
-          this.items = this.items.sort((a, b) =>
-            a.name < b.name ? 1 : b.name < a.name ? -1 : 0
-          );
-          break;
-
-        default:
-          break;
-      }
+    async sortList(item) {
+      this.order = item
+      await this.getItems(this.currentUser)
     }
   }
 };

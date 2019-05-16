@@ -17,7 +17,11 @@ export const addItem = (userId, item) => {
     }).then(value => value.data)
 }
 
-export const getItems = (userId) => instance.get(`/user/${userId}/items`).then(value => value.data)
+export const getItems = (userId, order) => instance.get(`/user/${userId}/items`, {
+    params: {
+        order
+    }
+}).then(value => value.data)
 
 export const updateItem = (userId, item) => {
     const {
