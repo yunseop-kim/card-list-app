@@ -1,15 +1,26 @@
 import db from '../db';
 
 async function getItems(req, res) {
-  const order = req.query.order || 'DESC';
-  const item = await db.item.findAll({
-    where: {
-      user_id: req.params.userId
-    },
-    order: [['name', order]]
-  });
+  try {
+    const order = req.query.order;
+    let findOptions = {
+      where: {
+        user_id: req.params.userId
+      }
+    }
+    if (order) {
+      findOptions.order = [
+        ['name', order]
+      ]
+    }
+    const item = await db.item.findAll(findOptions);
 
-  return res.status(200).json(item);
+    return res.status(200).json(item);
+  } catch (error) {
+    return res.status(400).json({
+      error: error.stack
+    });
+  }
 }
 
 async function addItem(req, res) {
