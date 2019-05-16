@@ -10,7 +10,7 @@
               v-for="(user, index) in users"
               :class="{active: user.id == currentUser.id}"
               :key="index"
-              @click="getItems(user)"
+              @click="selectUser(user)"
             >
               <span>{{user.name}}</span>
               <div style="display: flex; justify-content: flex-end">
@@ -168,6 +168,10 @@ export default {
       this.items = await addItem(this.currentUser.id, this.itemInput);
       await this.getItems(this.currentUser);
       this.closeModal();
+    },
+    async selectUser(user) {
+      this.order = null;
+      this.getItems(user);
     },
     async getItems(user) {
       this.currentUser = user;
