@@ -1,10 +1,12 @@
 import db from '../db';
 
 async function getItems(req, res) {
+  const order = req.query.order || 'DESC';
   const item = await db.item.findAll({
     where: {
       user_id: req.params.userId
-    }
+    },
+    order: [['name', order]]
   });
 
   return res.status(200).json(item);

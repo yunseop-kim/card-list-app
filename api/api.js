@@ -10,7 +10,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 applyRoutes(app);
 
-db.initDB(true)
+db.initDB()
   .then(() => {
     return db.createDummy();
   })
