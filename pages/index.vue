@@ -1,32 +1,9 @@
 <template>
-  <div class="row">
+  <div class="row" style="margin: 20px;">
     <div id="container" class="col-md-12">
-      <div id="info-box">
-        <div class="col-md-6">
-          <div class="dropdown">
-            <button
-              class="btn btn-secondary dropdown-toggle"
-              href="#"
-              role="button"
-              id="dropdownMenuLink"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >{{(order && order.value) ? order.key : '선택하세요'}}</button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-              <button
-                class="dropdown-item"
-                href="#"
-                v-for="(item, index) in ordering"
-                :key="index"
-                @click="sortList(item)"
-              >{{item.key}}</button>
-            </div>
-          </div>
-        </div>
-      </div>
       <div class="row">
-        <div id="user-list" class="col-md-6">
+        <div id="user-list" class="col-md-6" style="height:80vh; overflow:scroll;">
+          <h3>유저 목록</h3>
           <ul class="list-group">
             <li
               class="list-group-item justify-content-between align-items-center"
@@ -46,15 +23,44 @@
             </li>
           </ul>
         </div>
-        <div id="card-list" class="col-md-6" style="height:100vh; overflow:scroll;">
-          <card
-            v-for="(item, index) in items"
-            :key="index"
-            :name="item.name"
-            :path="item.image_path"
-            @modify="openModal(item)"
-            @remove="removeItem(item)"
-          />
+        <div id="card-list" class="col-md-6">
+          <div class="col-md-6">
+            <h3>아이템 목록</h3>
+            <div style="position: relative; margin-bottom: 10px;">
+              <label style="display: inline; margin-right: 10px;">정렬</label>
+              <div class="dropdown" style="display: inline;">
+                <button
+                  class="btn btn-secondary dropdown-toggle"
+                  href="#"
+                  role="button"
+                  id="dropdownMenuLink"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >{{(order && order.value) ? order.key : '선택하세요'}}</button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <button
+                    class="dropdown-item"
+                    href="#"
+                    v-for="(item, index) in ordering"
+                    :key="index"
+                    @click="sortList(item)"
+                  >{{item.key}}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="height:80vh; overflow:scroll;">
+            <div v-if="items.length === 0">아이템이 없습니다!</div>
+            <card
+              v-for="(item, index) in items"
+              :key="index"
+              :name="item.name"
+              :path="item.image_path"
+              @modify="openModal(item)"
+              @remove="removeItem(item)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -66,17 +72,26 @@
       <div slot="body">
         <div class="form-group">
           <label for="name">이름</label>
-          <input class="form-control" type="text" name="name" id="name" v-model="itemInput.name">
+          <input
+            class="form-control"
+            :class="{'is-valid': itemInput.name }"
+            type="text"
+            name="name"
+            id="name"
+            v-model="itemInput.name"
+          >
         </div>
         <div class="form-group">
           <label for="path">경로</label>
           <input
             class="form-control"
+            :class="urlChecker(itemInput.image_path) ? 'is-valid' : 'is-invalid'"
             type="text"
             name="path"
             id="path"
-            placeholder="경로"
+            placeholder="예: http://www.example.com/image.png"
             v-model="itemInput.image_path"
+            :disabled="isEditMode"
           >
         </div>
       </div>
@@ -147,21 +162,28 @@ export default {
       this.users = await getUsers();
     },
     async addItem() {
+      if (!this.validate()) {
+        return;
+      }
       this.items = await addItem(this.currentUser.id, this.itemInput);
       await this.getItems(this.currentUser);
       this.closeModal();
     },
     async getItems(user) {
       this.currentUser = user;
-      const order = (this.order && this.order.value)
+      const order = this.order && this.order.value;
       this.items = await getItems(this.currentUser.id, order);
     },
     async removeItem(item) {
-      console.log(item);
-      await removeItem(this.currentUser.id, item.id);
-      await this.getItems(this.currentUser);
+      if (window.confirm("정말 삭제하시겠습니까?")) {
+        await removeItem(this.currentUser.id, item.id);
+        await this.getItems(this.currentUser);
+      }
     },
     async updateItem() {
+      if (!this.validate()) {
+        return;
+      }
       await updateItem(this.currentUser.id, this.itemInput);
       await this.getItems(this.currentUser);
       this.closeModal();
@@ -186,8 +208,27 @@ export default {
       this.$store.commit("resetItem");
     },
     async sortList(item) {
-      this.order = item
-      await this.getItems(this.currentUser)
+      this.order = item;
+      await this.getItems(this.currentUser);
+    },
+    validate() {
+      const { id, name, image_path } = this.itemInput;
+
+      if (!name) {
+        window.alert("이름을 입력해주세요");
+        return false;
+      }
+
+      if (!this.urlChecker(image_path)) {
+        window.alert("URL이 맞는지 올바로 확인해주세요.");
+        return false;
+      }
+
+      return true;
+    },
+    urlChecker(url) {
+      const urlRegExp = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+      return urlRegExp.test(url);
     }
   }
 };
@@ -196,7 +237,7 @@ export default {
 <style>
 .container {
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: 80vh;
   display: flex;
   justify-content: center;
   align-items: center;
