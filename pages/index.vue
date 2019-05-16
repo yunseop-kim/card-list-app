@@ -1,71 +1,87 @@
 <template>
-  <v-app id="inspire">
-    <v-container grid-list-md text-xs-center>
-      <v-layout row wrap fill-height>
-        <v-flex xs12>
-          <div>선택된 유저: {{currentUser.name || '없음'}}</div>
-          <v-btn v-if="currentUser.id" @click="openModal(null, 'add')">생성</v-btn>
-          <v-select
-            v-if="items.length > 0"
-            v-model="order"
-            @change="sortList"
-            :items="['선택하세요', '내림차순', '오름차순']"
-            label="정렬"
+  <div class="row">
+    <div id="container" class="col-md-12">
+      <div id="info-box">
+        <div class="col-md-6">
+          <div class="dropdown">
+            <button
+              class="btn btn-secondary dropdown-toggle"
+              href="#"
+              role="button"
+              id="dropdownMenuLink"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >선택하세요</button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <button
+                class="dropdown-item"
+                href="#"
+                v-for="(item, index) in ['내림차순', '오름차순']"
+                :key="index"
+              >{{item}}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div id="user-list" class="col-md-6">
+          <ul class="list-group">
+            <li
+              class="list-group-item justify-content-between align-items-center"
+              v-for="(user, index) in users"
+              :class="{active: user.id == currentUser.id}"
+              :key="index"
+              @click="getItems(user)"
+            >
+              <span>{{user.name}}</span>
+              <div style="display: flex; justify-content: flex-end">
+                <button class="btn btn-success" @click="openModal(null, 'add')" data-toggle="modal">생성</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div id="card-list" class="col-md-6" style="height:100vh; overflow:scroll;">
+          <card
+            v-for="(item, index) in items"
+            :key="index"
+            :name="item.name"
+            :path="item.image_path"
+            @modify="openModal(item)"
+            @remove="removeItem(item)"
           />
-        </v-flex>
-        <v-flex xs6>
-          <div style="height:80vh; overflow:scroll;">
-            <v-list>
-              <v-list-tile v-for="(user, index) in users" :key="index">
-                <v-list-tile-content>
-                  <v-list-tile-title>{{user.name}}</v-list-tile-title>
-                </v-list-tile-content>
-                <v-list-tile-action>
-                  <v-btn color="info" @click="getItems(user)">보기</v-btn>
-                </v-list-tile-action>
-              </v-list-tile>
-            </v-list>
-          </div>
-        </v-flex>
-        <v-flex>
-          <div style="height:80vh; overflow:scroll;">
-            <v-card v-for="(item, index) in items" :key="index">
-              <v-img :src="item.image_path" aspect-ratio="2.75"></v-img>
+        </div>
+      </div>
+    </div>
 
-              <v-card-title primary-title>
-                <div>
-                  <h3 class="headline mb-0">{{item.name}}</h3>
-                </div>
-              </v-card-title>
-
-              <v-card-actions>
-                <v-btn flat color="orange" @click="openModal(item)">수정</v-btn>
-                <v-btn flat color="orange" @click="removeItem(item)">삭제</v-btn>
-              </v-card-actions>
-            </v-card>
-          </div>
-        </v-flex>
-      </v-layout>
-    </v-container>
-    <v-dialog v-model="dialog" persistent max-width="290">
-      <v-card>
-        <v-card-title class="headline">아이템 {{isAddMode ? '생성': '수정'}}</v-card-title>
-        <v-text-field label="이름" v-model="itemInput.name" :value="itemInput.name"></v-text-field>
-        <v-text-field
-          v-if="isAddMode"
-          label="경로"
-          v-model="itemInput.image_path"
-          :value="itemInput.image_path"
-        ></v-text-field>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat @click="closeModal">취소</v-btn>
-          <v-btn v-if="isAddMode" color="green darken-1" flat @click="addItem">생성</v-btn>
-          <v-btn v-if="isEditMode" color="green darken-1" flat @click="updateItem">수정</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-app>
+    <modal v-if="dialog" @close="closeModal">
+      <h3 slot="header">
+        <h5 class="modal-title">아이템 {{isAddMode ? '생성': '수정'}}</h5>
+      </h3>
+      <div slot="body">
+        <div class="form-group">
+          <label for="name">이름</label>
+          <input class="form-control" type="text" name="name" id="name" v-model="itemInput.name">
+        </div>
+        <div class="form-group">
+          <label for="path">경로</label>
+          <input
+            class="form-control"
+            type="text"
+            name="path"
+            id="path"
+            placeholder="경로"
+            v-model="itemInput.image_path"
+          >
+        </div>
+      </div>
+      <div slot="footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="closeModal">취소</button>
+        <button type="button" class="btn btn-primary" v-if="isAddMode" @click="addItem">생성</button>
+        <button type="button" class="btn btn-primary" v-if="isEditMode" @click="updateItem">수정</button>
+      </div>
+    </modal>
+  </div>
 </template>
 
 <script>
@@ -76,7 +92,13 @@ import {
   removeItem,
   updateItem
 } from "../plugins/api.js";
+import Modal from "../components/Modal";
+import Card from "../components/Card";
+
 export default {
+  components: {
+    Modal, Card
+  },
   data() {
     return {
       currentUser: {

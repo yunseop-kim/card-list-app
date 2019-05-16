@@ -9,7 +9,6 @@
     "dev:api": "cross-env NODE_ENV=development webpack --config ./api/webpack.config.js"
   },
   "dependencies": {
-    "@nuxtjs/vuetify": "^0.5.5",
     "axios": "^0.18.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",

@@ -52,13 +52,7 @@ module.exports = {
   },
   css: [],
   plugins: [],
-  modules: [
-    '@nuxtjs/vuetify'
-  ],
-  vuetify: {
-    // Vuetify options
-    //  theme: { }
-  },
+  modules: [],
   build: {
     extend(config, ctx) {}
   }
