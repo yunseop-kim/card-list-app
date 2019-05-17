@@ -27,6 +27,7 @@ export async function update(userId, id, payload) {
         name,
         image_path
     } = payload;
+    await findOne(userId, id)
     return db.item.update({
         name,
         image_path
@@ -39,7 +40,7 @@ export async function update(userId, id, payload) {
 }
 
 export async function remove(userId, id) {
-    const item = await findOne(userId, id);
+    await findOne(userId, id);
     return db.item.destroy({
         where: {
             id,
