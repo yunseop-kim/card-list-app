@@ -1,9 +1,8 @@
-import db from '../db';
+import * as service from '../services/user'
 
 async function getUsers(req, res) {
-  const user = await db.user.findAll();
-
-  return res.status(200).json(user);
+  const users = await service.findAll();
+  return res.status(200).json(users);
 }
 
 export default {

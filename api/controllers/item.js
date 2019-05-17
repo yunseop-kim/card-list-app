@@ -1,102 +1,62 @@
-import db from '../db';
-
+import {
+  errorHandler,
+  validate
+} from '../utils'
+import * as service from '../services/item'
 async function getItems(req, res) {
   try {
     const order = req.query.order;
-    let findOptions = {
-      where: {
-        user_id: req.params.userId
-      }
-    }
-    if (order) {
-      findOptions.order = [
-        ['name', order]
-      ]
-    }
-    const item = await db.item.findAll(findOptions);
-
+    const item = await service.findAll(req.params.userId, order)
     return res.status(200).json(item);
   } catch (error) {
-    return res.status(400).json({
-      error: error.stack
-    });
+    return errorHandler(error, res)
   }
 }
 
 async function addItem(req, res) {
   try {
+    validate(req.body);
     const {
       name,
       image_path
-    } = req.body;
-    const user = await db.user.findOne({
-      where: {
-        id: req.params.userId
-      }
-    })
-    const item = await db.item.create({
+    } = req.body
+    const addItem = await service.add(req.params.userId, {
       name,
       image_path
     })
-    await user.addItem(item)
-    return res.status(200).json(item);
+    return res.status(200).json(addItem);
   } catch (error) {
-    return res.status(400).json({
-      error: error.stack
-    });
+    return errorHandler(error, res)
   }
 }
 
 async function updateItem(req, res) {
   try {
+    validate(req.body);
     const {
       name,
       image_path
     } = req.body
-
-    const item = db.item.update({
+    const updateItem = await service.update(req.params.userId, req.params.id, {
       name,
       image_path
-    }, {
-      where: {
-        id: req.params.id,
-        user_id: req.params.userId
-      }
     })
 
-    return res.status(200).json(item);
+    return res.status(200).json(updateItem);
   } catch (error) {
-    return res.status(400).json({
-      error: error.stack
-    });
+    return errorHandler(error, res)
   }
 }
 
 async function removeItem(req, res) {
   try {
-    const result = await db.item.destroy({
-      where: {
-        id: req.params.id,
-        user_id: req.params.userId
-      }
-    });
-    if (result) {
-      return res.status(200).json({
-        result: "success",
-        message: "성공적으로 삭제했습니다."
-      });
-    } else {
-      return res.status(400).json({
-        result: "fail",
-        message: "항목을 찾을 수 없습니다."
-      });
-    }
+    const result = await service.remove(req.params.userId, req.params.id);
+    return res.status(204).json(result);
   } catch (error) {
-    return res.status(400).json({
-      error: error.stack
-    });
+    return errorHandler(error, res)
   }
 }
+
 
 export default {
   getItems,
