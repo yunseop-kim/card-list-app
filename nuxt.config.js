@@ -52,7 +52,15 @@ module.exports = {
   },
   css: [],
   plugins: [],
-  modules: [],
+  modules: [
+    '@nuxtjs/axios'
+  ],
+  axios: {
+    baseURL: 'http://localhost:9999/'
+  },
+  env: {
+    API_URL: 'http://localhost:9999/'
+  },
   build: {
     extend(config, ctx) {}
   }

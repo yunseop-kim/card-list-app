@@ -120,6 +120,19 @@ export default {
     Modal,
     Card
   },
+  async asyncData ({ req, $axios, params, redirect, env }) {
+    try {
+      const { data } = await $axios.get(`/user`)
+      if (!data) {
+        redirect('/404')
+      }
+      return {
+        users: data
+      }
+    } catch (e) {
+      redirect('/404')
+    }
+  },
   data() {
     return {
       currentUser: {
@@ -128,7 +141,7 @@ export default {
       },
       dialog: false,
       dialogMode: "",
-      users: [],
+      // users: [],
       items: [],
       ordering: [
         { key: "선택안함", value: null },
@@ -143,9 +156,9 @@ export default {
       }
     };
   },
-  async mounted() {
-    this.fetch();
-  },
+  // async mounted() {
+  //   this.fetch();
+  // },
   computed: {
     selectedItem() {
       return this.$store.state.selectedItem;
@@ -158,9 +171,9 @@ export default {
     }
   },
   methods: {
-    async fetch() {
-      this.users = await getUsers();
-    },
+    // async fetch() {
+    //   this.users = await getUsers();
+    // },
     async addItem() {
       if (!this.validate()) {
         return;
