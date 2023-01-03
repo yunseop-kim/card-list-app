@@ -14,7 +14,7 @@
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "mysql2": "^1.6.5",
-    "nuxt": "^2.4.5",
+    "nuxt": "^2.15.8",
     "sequelize": "^5.1.0"
   },
   "devDependencies": {
